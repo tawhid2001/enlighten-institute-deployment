@@ -10,13 +10,22 @@ from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import render
 from dj_rest_auth.registration.views import RegisterView
-from .serializers import CustomRegisterSerializer
+from .serializers import CustomRegisterSerializer,CustomUserSerializer
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 
 
 class CustomRegisterView(RegisterView):
     serializer_class = CustomRegisterSerializer
+
+class UserDetailView(generics.RetrieveUpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 class UserUpdateView(generics.UpdateAPIView):
     serializer_class = UserUpdateSerializer
