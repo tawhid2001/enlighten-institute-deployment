@@ -9,9 +9,14 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import render
+from dj_rest_auth.registration.views import RegisterView
+from .serializers import CustomRegisterSerializer
 
 User = get_user_model()
 
+
+class CustomRegisterView(RegisterView):
+    serializer_class = CustomRegisterSerializer
 
 class UserUpdateView(generics.UpdateAPIView):
     serializer_class = UserUpdateSerializer

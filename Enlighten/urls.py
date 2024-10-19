@@ -26,9 +26,9 @@ urlpatterns = [
     path('api/enrollment/', include('enrollment.urls')),
     path('api-auth/', include('rest_framework.urls')),
     path('api/auth/', include("dj_rest_auth.urls")),
-    path("api/auth/", include("django.contrib.auth.urls")),
-    path('api/auth/registration/', include("dj_rest_auth.registration.urls")),
+    # path('api/auth/registration/', include("dj_rest_auth.registration.urls")),
     path('api/auth/registration/account_confirm_email/<str:key>/', CustomConfirmEmailView.as_view(), 
     name='account_confirm_email'),
     path('account/inactive/', account_inactive, name="account_inactive"),
+    path('api/', include("accounts.urls")),
 ]

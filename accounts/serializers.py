@@ -48,9 +48,9 @@ class CustomRegisterSerializer(RegisterSerializer):
 
     def save(self, request):
         user = super().save(request)
-        user.user_type = self.cleaned_data.get('user_type')
-        user.first_name = self.cleaned_data.get('first_name')
-        user.last_name = self.cleaned_data.get('last_name')
+        user.user_type = self.validated_data.get('user_type')
+        user.first_name = self.validated_data.get('first_name')
+        user.last_name = self.validated_data.get('last_name')
         user.is_active = False
         user.save()
         self.send_confirmation_email(user)

@@ -77,9 +77,8 @@ REST_FRAMEWORK = {
 }
 
 
-REST_AUTH_REGISTER_SERIALIZERS = {
-    'REGISTER_SERIALIZER': 'accounts.serializers.CustomRegisterSerializer',
-}
+REST_AUTH_REGISTER_SERIALER = 'accounts.serializers.CustomRegisterSerializer'
+
 
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'accounts.serializers.CustomUserSerializer',
@@ -103,6 +102,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:5500',
     'http://localhost:5500',
     "https://tawhid2001.github.io",
+    'https://enlighten-institute-deployment.vercel.app',
 ]
 
 MIDDLEWARE = [
