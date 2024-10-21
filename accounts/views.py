@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from .serializers import UserUpdateSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -10,8 +10,12 @@ from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import render
 from dj_rest_auth.registration.views import RegisterView
-from .serializers import CustomRegisterSerializer,CustomUserSerializer
+from .serializers import CustomRegisterSerializer,CustomUserSerializer,ContactSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.core.mail import send_mail
+
 
 User = get_user_model()
 
@@ -57,4 +61,25 @@ class CustomConfirmEmailView(ConfirmEmailView):
             return HttpResponse('Invalid confirmation link.', status=400)
 
 def account_inactive(request):
-     return render(request, 'account_inactive.html')
+    return render(request, 'account_inactive.html')
+
+class ContactView(APIView):
+    def post(self, request):
+        serializer = ContactSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            message = serializer.validated_data['message']
+            admin_email = '211003042.primeasia@gmail.com'  # Set your admin email here
+            
+            # Send the email
+            try:
+                send_mail(
+                    subject='Contact Form Submission',
+                    message=f"Message from: {email}\n\n{message}",
+                    from_email=email,  # From email (user's email)
+                    recipient_list=[admin_email],  # To email (admin's email)
+                )
+                return Response({'status': 'Message sent!'}, status=status.HTTP_200_OK)
+            except Exception as e:
+                return Response({'status': 'Error sending message.', 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

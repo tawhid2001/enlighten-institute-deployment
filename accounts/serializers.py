@@ -76,3 +76,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'user_type')
+
+class ContactSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    message = serializers.CharField()
