@@ -3,12 +3,14 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status,viewsets
-from .models import Course,Lesson,LessonProgress
-from .serializers import CourseListSerializer,LessonProgressSerializer,ProgressSerializer,LessonSerializer
+from .models import Course,Lesson,LessonProgress,Review
+from .serializers import CourseListSerializer,LessonProgressSerializer,ProgressSerializer,LessonSerializer,ReviewSerializer
 from django.http import Http404
 from .permissions import IsTeacherrOrReadOnly
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 import requests
+from rest_framework.response import Response
+from django.db.models import Avg
 
 # Create your views here.
 
@@ -202,4 +204,41 @@ class CourseProgressView(APIView):
         }
 
         serializer = ProgressSerializer(progress_data)
+        return Response(serializer.data)
+    
+class ReviewViewSet(viewsets.ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            # Allow anyone to view reviews
+            return [AllowAny()]
+        # Only authenticated users can create, update, or delete reviews
+        return [IsAuthenticated()]
+
+    def perform_create(self, serializer):
+        # Automatically associate the logged-in user with the review
+        serializer.save(user=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        # Allow only the owner of the review to update it
+        review = self.get_object()
+        if review.user != request.user:
+            return Response({"detail": "You do not have permission to edit this review."}, status=403)
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        # Allow only the owner of the review to delete it
+        review = self.get_object()
+        if review.user != request.user:
+            return Response({"detail": "You do not have permission to delete this review."}, status=403)
+        return super().destroy(request, *args, **kwargs)
+    
+class TopRatedCoursesView(APIView):
+    def get(self, request):
+        # Fetch top 3 courses ordered by average rating
+        top_courses = Course.objects.annotate(average_rating=Avg('reviews__rating')).order_by('-average_rating')[:3]
+
+        serializer = CourseListSerializer(top_courses, many=True)
         return Response(serializer.data)

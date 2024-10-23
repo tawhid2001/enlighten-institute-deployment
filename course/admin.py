@@ -11,3 +11,4 @@ admin.site.register(models.Lesson)
 
 
 admin.site.register(models.LessonProgress)
+admin.site.register(models.Review)
