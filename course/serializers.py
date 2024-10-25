@@ -62,12 +62,15 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = ['id', 'course', 'rating', 'comment', 'user', 'created_at']  # Include 'user' field for user details
 
     def validate(self, data):
-        # Ensure a user can review a course only once
         user = self.context['request'].user
         course = data.get('course')
-        if Review.objects.filter(course=course, user=user).exists():
+        review_id = self.instance.id if self.instance else None  # Get the review ID if updating
+
+        # Check if a review for the course by the same user exists, excluding the current review
+        if Review.objects.filter(course=course, user=user).exclude(id=review_id).exists():
             raise serializers.ValidationError("You have already reviewed this course.")
         return data
+
   
 
     

@@ -9,6 +9,12 @@ urlpatterns = [
     path('courselessons/<int:pk>/', CourseLessonsWithProgress.as_view(),name="course_lessons"),
     path('lesson/<int:pk>/', LessonDetails.as_view(),name="lesson_detail"),
     path('lessonprogress/',LessonProgressViewSet.as_view({'get': 'list', 'post': 'create'}),name="lesson-progress"),
-    path('review/',ReviewViewSet.as_view({'get': 'list', 'post': 'create'}), name="reviews"),
+    path('reviews/', ReviewViewSet.as_view({'get': 'list', 'post': 'create'}), name="reviews"),
+    path('reviews/<int:pk>/', ReviewViewSet.as_view({
+        'get': 'retrieve',  # For viewing a single review
+        'put': 'update',    # For full update (all fields required)
+        'patch': 'partial_update',  # For partial update (some fields)
+        'delete': 'destroy'  # For deleting the review
+    }), name="review-detail"),
     path('top-rated-courses/',TopRatedCoursesView.as_view(),name='top-rated-courses'),
 ]

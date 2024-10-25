@@ -227,7 +227,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         if review.user != request.user:
             return Response({"detail": "You do not have permission to edit this review."}, status=403)
         return super().update(request, *args, **kwargs)
-
+    
     def destroy(self, request, *args, **kwargs):
         # Allow only the owner of the review to delete it
         review = self.get_object()
