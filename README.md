@@ -13,7 +13,7 @@ The **Enlighten School** backend is built with Django and Django REST Framework 
 ## Technologies
 
 - **Backend Framework**: Django, Django REST Framework (DRF)
-- **Database**: superbase (PostgreSQL)
+- **Database**: supbase (PostgreSQL)
 - **Authentication**: DRF Token Authentication
 - **Deployment**: Vercel (for live API)
 
