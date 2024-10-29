@@ -12,6 +12,7 @@ class Course(models.Model):
     department = models.ForeignKey(Department, related_name='courses', on_delete=models.CASCADE, default=None)
     created_at = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(max_length=200, unique=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) 
 
     def __str__(self):
         return self.course_name

@@ -29,8 +29,9 @@ SECRET_KEY = 'django-insecure-4*@6x*u=-=lg_!)y&o7t-1=^kr_%%9*cx_1_dtz1l_963s!q(l
 DEBUG = True
 
 AUTH_USER_MODEL= 'accounts.CustomUser'
+WEBHOOK_ENDPOINT_SECRET = 'whsec_983d6aefa715413ee20e9cf6de4c71ca3f63f651adb242ed0dca51ae460bf4a2'
 
-ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app"]
+ALLOWED_HOSTS = ['localhost',"127.0.0.1", ".vercel.app"]
 
 
 # Application definition
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
     'course',
     'enrollment',
     'department',
+    'payment',
 ]
 
 
@@ -212,3 +214,5 @@ EMAIL_HOST_USER = env("EMAIL")
 EMAIL_HOST_PASSWORD = env("EMAIL_PASSWORD")
 SITE_URL = 'https://enlighten-institute-deployment.vercel.app' 
 SITE_ID=1
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="Missing Secret Key")
+STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY", default="Missing Publishable Key")

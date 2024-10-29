@@ -10,7 +10,7 @@ class CourseListSerializer(serializers.ModelSerializer):
     average_rating = serializers.FloatField(read_only=True)  # Include the average rating field
     class Meta:
         model = Course
-        fields = ['id', 'course_name', 'course_code', 'description', 'image_url' ,'created_at', 'slug', 'teacher', 'teacher_name', 'department', 'department_name','average_rating']
+        fields = ['id', 'course_name', 'course_code', 'description', 'image_url' ,'created_at', 'slug', 'teacher', 'teacher_name', 'department', 'department_name','average_rating','price']
 
         read_only_fields = ["teacher",]
 
