@@ -75,17 +75,49 @@ def stripe_webhook(request):
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
-        )
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        print(event)
     except (ValueError, stripe.error.SignatureVerificationError):
-        return Response(status=400)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    # Process only specific events
-    if event['type'] == 'checkout.session.completed':
-        payment_intent_id = event['data']['object']['payment_intent']
-        process_payment.delay(payment_intent_id)  # Defer to background task
-    return Response(status=200)  # Acknowledge quickly
+    if event['type'] == 'payment_intent.succeeded':
+        payment_intent = event['data']['object']
+        stripe_payment_intent_id = payment_intent["id"]
+        student_id = payment_intent['metadata']['student_id']
+        course_id = payment_intent['metadata']['course_id']
+
+        try:
+            # Retrieve the student and course instances
+            student = settings.AUTH_USER_MODEL.objects.get(id=student_id)
+            course = Course.objects.get(id=course_id)
+
+            # Create or retrieve the payment record
+            payment, created = Payment.objects.get_or_create(
+                payment_id=stripe_payment_intent_id,
+                defaults={
+                    'student': student,
+                    'course': course,
+                    'amount': course.price,
+                    'status': 'succeeded',
+                },
+            )
+
+            if created:
+                logger.info(f"Payment record created for {student.username} in course {course.course_name}.")
+            else:
+                payment.status = 'succeeded'
+                payment.save()
+                logger.info(f"Payment record updated to succeeded for {student.username} in course {course.course_name}.")
+
+            # Enroll the student in the course after successful payment
+            Enrollment.objects.get_or_create(student=student, course=course)
+
+        except Exception as e:
+            logger.error(f"Error processing payment or enrollment: {e}")
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    return Response(status=status.HTTP_200_OK)
+
 
 
 @api_view(["GET"])
