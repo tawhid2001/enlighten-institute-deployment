@@ -125,6 +125,3 @@ def stripe_webhook(request):
 def get_publishable_key(request):
     return JsonResponse({"publishable_key": settings.STRIPE_PUBLISHABLE_KEY})
 
-class EnrollmentSuccessView(View):
-    def get(self, request, course_id):
-        return render(request, "success.html", {"course_id": course_id})
