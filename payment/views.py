@@ -53,8 +53,8 @@ def create_checkout_session(request):
                 },
             ],
             mode='payment',
-            success_url="",  # Your success URL
-            cancel_url="",
+            success_url="https://enlighten-institute-deployment.vercel.app/success",  # Your success URL
+            cancel_url="https://enlighten-institute-deployment.vercel.app/cancel",
             metadata={
                 "course_id": course_id,
                 "student_id": request.user.id,
