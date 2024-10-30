@@ -14,6 +14,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -73,22 +75,23 @@ def stripe_webhook(request):
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
+    User = get_user_model()
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        print(event)
+        logger.debug(event)  # Better for production than using print
     except (ValueError, stripe.error.SignatureVerificationError):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     if event['type'] == 'payment_intent.succeeded':
         payment_intent = event['data']['object']
         stripe_payment_intent_id = payment_intent["id"]
-        student_id = payment_intent['metadata']['student_id']
-        course_id = payment_intent['metadata']['course_id']
+        student_id = payment_intent['metadata'].get('student_id')
+        course_id = payment_intent['metadata'].get('course_id')
 
         try:
             # Retrieve the student and course instances
-            student = settings.AUTH_USER_MODEL.objects.get(id=student_id)
+            student = User.objects.get(id=student_id)
             course = Course.objects.get(id=course_id)
 
             # Create or retrieve the payment record
@@ -97,7 +100,7 @@ def stripe_webhook(request):
                 defaults={
                     'student': student,
                     'course': course,
-                    'amount': course.price,
+                    'amount': getattr(course, 'price', 0),
                     'status': 'succeeded',
                 },
             )
