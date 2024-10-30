@@ -79,26 +79,22 @@ def stripe_webhook(request):
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
         logger.info(f"Stripe event received: {event['type']}")
-    except ValueError as e:
-        logger.error(f"Invalid payload: {e}")
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-    except stripe.error.SignatureVerificationError as e:
-        logger.error(f"Invalid signature: {e}")
+    except (ValueError, stripe.error.SignatureVerificationError) as e:
+        logger.error(f"Webhook error: {e}")
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     # Handle checkout.session.completed event
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
 
-        # Retrieve metadata information
         course_id = session['metadata'].get('course_id')
         student_id = session['metadata'].get('student_id')
         payment_intent_id = session['payment_intent']
 
         if course_id and student_id:
             try:
-                # Retrieve the course and student objects
-                student = settings.AUTH_USER_MODEL.objects.get(id=student_id)
+                # Retrieve user and course
+                student = User.objects.get(id=student_id)
                 course = Course.objects.get(id=course_id)
 
                 # Create payment record
@@ -112,24 +108,23 @@ def stripe_webhook(request):
                     },
                 )
 
-                # Log the payment creation
                 if created:
-                    logger.info(f"Payment record created for {student.username} in course {course.course_name}.")
+                    logger.info(f"Payment created for student {student.username} in course {course.course_name}.")
                 else:
                     payment.status = 'succeeded'
                     payment.save()
-                    logger.info(f"Payment status updated for {student.username} in course {course.course_name}.")
+                    logger.info(f"Payment updated for student {student.username} in course {course.course_name}.")
 
-                # Enroll student in course after successful payment
+                # Enroll student after successful payment
                 Enrollment.objects.get_or_create(student=student, course=course)
                 logger.info(f"{student.username} enrolled in {course.course_name}.")
 
             except Exception as e:
                 logger.error(f"Error processing enrollment: {e}")
-                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             logger.error("Missing course_id or student_id in session metadata.")
-            return Response({"error": "Missing course_id or student_id in metadata"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     return Response(status=status.HTTP_200_OK)
 
