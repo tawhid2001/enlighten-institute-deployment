@@ -75,52 +75,63 @@ def stripe_webhook(request):
     payload = request.body
     sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
-    User = get_user_model()
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        logger.debug(event)  # Better for production than using print
-    except (ValueError, stripe.error.SignatureVerificationError):
+        logger.info(f"Stripe event received: {event['type']}")
+    except ValueError as e:
+        logger.error(f"Invalid payload: {e}")
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    except stripe.error.SignatureVerificationError as e:
+        logger.error(f"Invalid signature: {e}")
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    if event['type'] == 'payment_intent.succeeded':
-        payment_intent = event['data']['object']
-        stripe_payment_intent_id = payment_intent["id"]
-        student_id = payment_intent['metadata'].get('student_id')
-        course_id = payment_intent['metadata'].get('course_id')
+    # Handle checkout.session.completed event
+    if event['type'] == 'checkout.session.completed':
+        session = event['data']['object']
 
-        try:
-            # Retrieve the student and course instances
-            student = User.objects.get(id=student_id)
-            course = Course.objects.get(id=course_id)
+        # Retrieve metadata information
+        course_id = session['metadata'].get('course_id')
+        student_id = session['metadata'].get('student_id')
+        payment_intent_id = session['payment_intent']
 
-            # Create or retrieve the payment record
-            payment, created = Payment.objects.get_or_create(
-                payment_id=stripe_payment_intent_id,
-                defaults={
-                    'student': student,
-                    'course': course,
-                    'amount': getattr(course, 'price', 0),
-                    'status': 'succeeded',
-                },
-            )
+        if course_id and student_id:
+            try:
+                # Retrieve the course and student objects
+                student = settings.AUTH_USER_MODEL.objects.get(id=student_id)
+                course = Course.objects.get(id=course_id)
 
-            if created:
-                logger.info(f"Payment record created for {student.username} in course {course.course_name}.")
-            else:
-                payment.status = 'succeeded'
-                payment.save()
-                logger.info(f"Payment record updated to succeeded for {student.username} in course {course.course_name}.")
+                # Create payment record
+                payment, created = Payment.objects.get_or_create(
+                    payment_id=payment_intent_id,
+                    defaults={
+                        'student': student,
+                        'course': course,
+                        'amount': course.price,
+                        'status': 'succeeded',
+                    },
+                )
 
-            # Enroll the student in the course after successful payment
-            Enrollment.objects.get_or_create(student=student, course=course)
+                # Log the payment creation
+                if created:
+                    logger.info(f"Payment record created for {student.username} in course {course.course_name}.")
+                else:
+                    payment.status = 'succeeded'
+                    payment.save()
+                    logger.info(f"Payment status updated for {student.username} in course {course.course_name}.")
 
-        except Exception as e:
-            logger.error(f"Error processing payment or enrollment: {e}")
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                # Enroll student in course after successful payment
+                Enrollment.objects.get_or_create(student=student, course=course)
+                logger.info(f"{student.username} enrolled in {course.course_name}.")
+
+            except Exception as e:
+                logger.error(f"Error processing enrollment: {e}")
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            logger.error("Missing course_id or student_id in session metadata.")
+            return Response({"error": "Missing course_id or student_id in metadata"}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response(status=status.HTTP_200_OK)
-
 
 
 @api_view(["GET"])
