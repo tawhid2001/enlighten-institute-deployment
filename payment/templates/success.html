@@ -1,85 +1,105 @@
-{% load socialaccount %}
-{% load static %}
+{% load socialaccount %} {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Enrollment Successful</title>
-    
+
     <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-    
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+
     <style>
-        body {
-          background-color: #121212;
-          color: #ffffff;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          font-family: 'Poppins', sans-serif;
-        }
-  
-        .success-container {
-          text-align: center;
-          padding: 2rem;
-          border-radius: 1rem;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-          background-color: #1e1e2e;
-        }
-  
-        .success-icon {
-          font-size: 4rem;
-          color: #28a745;
-        }
-  
-        .success-text {
-          font-size: 1.75rem;
-          margin: 1rem 0;
-          font-weight: 600;
-        }
+      body {
+        background-color: #121212;
+        color: #ffffff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-family: "Poppins", sans-serif;
+      }
 
-        .sub-text {
-          font-size: 1rem;
-          color: #b0b3c4;
-          margin-bottom: 1rem;
-        }
+      .success-container {
+        text-align: center;
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        background-color: #1e1e2e;
+      }
 
-        .btn-custom {
-          background-color: #6f42c1;
-          border-color: #6f42c1;
-          font-size: 1.1rem;
-          padding: 0.5rem 1.5rem;
-          border-radius: 0.5rem;
-          color: white;
-          font-weight: 600;
-          margin: 0.5rem;
-        }
-  
-        .btn-custom:hover {
-          background-color: #5a32a3;
-          border-color: #5a32a3;
-          color: white;
-        }
+      .success-icon {
+        font-size: 4rem;
+        color: #28a745;
+      }
 
-        .info-text {
-          margin-top: 1rem;
-          font-size: 0.9rem;
-          color: #9aa0b3;
-        }
-      </style>
-</head>
-<body>
+      .success-text {
+        font-size: 1.75rem;
+        margin: 1rem 0;
+        font-weight: 600;
+      }
+
+      .sub-text {
+        font-size: 1rem;
+        color: #b0b3c4;
+        margin-bottom: 1rem;
+      }
+
+      .btn-custom {
+        background-color: #6f42c1;
+        border-color: #6f42c1;
+        font-size: 1.1rem;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.5rem;
+        color: white;
+        font-weight: 600;
+        margin: 0.5rem;
+      }
+
+      .btn-custom:hover {
+        background-color: #5a32a3;
+        border-color: #5a32a3;
+        color: white;
+      }
+
+      .info-text {
+        margin-top: 1rem;
+        font-size: 0.9rem;
+        color: #9aa0b3;
+      }
+    </style>
+  </head>
+  <body>
     <div class="success-container">
-        <i class="fas fa-check-circle success-icon"></i>
-        <div class="success-text">Enrollment Successful!</div>
-        <p class="sub-text">You're now enrolled in your course. Dive in and start learning.</p>
-        <a href="https://tawhid2001.github.io/enlighten_school/enrolled_course.html" class="btn btn-custom">Go to My Courses</a>
-        <a href="https://tawhid2001.github.io/enlighten_school/browse_courses.html" class="btn btn-custom">Explore More Courses</a>
-        <p class="info-text">Happy Learning! If you have any questions, feel free to reach out to our support team.</p>
+      <i class="fas fa-check-circle success-icon"></i>
+      <div class="success-text">Enrollment Successful!</div>
+      <p class="sub-text">
+        You're now enrolled in your course. Dive in and start learning.
+      </p>
+      <a
+        href="https://tawhid2001.github.io/enlighten_school/enrolled_course.html"
+        class="btn btn-custom"
+        >Go to My Courses</a
+      >
+      <p class="info-text">
+        Happy Learning! If you have any questions, feel free to reach out to our
+        support team.
+      </p>
     </div>
-</body>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  </body>
 </html>
