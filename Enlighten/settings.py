@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os
 from pathlib import Path
+import stripe
 import environ
 env = environ.Env()
 environ.Env.read_env()
@@ -215,5 +216,6 @@ EMAIL_HOST_PASSWORD = env("EMAIL_PASSWORD")
 SITE_URL = 'https://enlighten-institute-deployment.vercel.app' 
 SITE_ID=1
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default="Missing Secret Key")
+stripe.api_version = '2024-09-30' 
 STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY", default="Missing Publishable Key")
 WEBHOOK_ENDPOINT_SECRET = env("WEBHOOK_ENDPOINT_SECRET")
