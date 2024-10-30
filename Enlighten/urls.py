@@ -18,7 +18,7 @@ from django.urls import path,include
 from accounts.views import CustomConfirmEmailView,account_inactive
 from django.conf import settings
 from django.conf.urls.static import static
-from payment.views import success_view
+from payment.views import create_checkout_session,stripe_webhook,get_publishable_key,success_view
 
 
 urlpatterns = [
@@ -34,5 +34,8 @@ urlpatterns = [
     name='account_confirm_email'),
     path('account/inactive/', account_inactive, name="account_inactive"),
     path('api/', include("accounts.urls")),
+    path('create-checkout-session/', create_checkout_session, name='create-checkout-session'),
+    path('stripe-webhook/', stripe_webhook, name='stripe-webhook'),
+    path('get-publishable-key/', get_publishable_key, name='get-publishable-key'), 
     path('success/', success_view, name='success'), 
 ]
