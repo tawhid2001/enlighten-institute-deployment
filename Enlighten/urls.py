@@ -18,7 +18,7 @@ from django.urls import path,include
 from accounts.views import CustomConfirmEmailView,account_inactive
 from django.conf import settings
 from django.conf.urls.static import static
-from payment.views import create_checkout_session,success_view
+from payment.views import success_view
 
 
 urlpatterns = [
