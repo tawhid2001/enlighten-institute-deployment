@@ -34,6 +34,5 @@ urlpatterns = [
     name='account_confirm_email'),
     path('account/inactive/', account_inactive, name="account_inactive"),
     path('api/', include("accounts.urls")),
-    path('create-checkout-session/', create_checkout_session, name='create-checkout-session'),
     path('success/', success_view, name='success'), 
 ]
