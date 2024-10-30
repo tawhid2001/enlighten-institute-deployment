@@ -125,3 +125,6 @@ def stripe_webhook(request):
 def get_publishable_key(request):
     return JsonResponse({"publishable_key": settings.STRIPE_PUBLISHABLE_KEY})
 
+def success_view(request):
+    return render(request, 'success.html')
+
