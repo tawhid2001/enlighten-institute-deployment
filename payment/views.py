@@ -14,6 +14,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
+from stripe.error import StripeError
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
@@ -42,33 +43,32 @@ def create_checkout_session(request):
 
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
-            line_items=[
-                {
-                    'price_data': {
-                        'currency': 'usd',
-                        'product_data': {
-                            'name': f'Course: {course.course_name}',
-                            'image': course.image_url,
-                        },
-                        'unit_amount': amount,
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {
+                        'name': f'Course: {course.course_name}',
+                        'images': [course.image_url],  # Stripe expects a list for images
                     },
-                    'quantity': 1,
+                    'unit_amount': amount,
                 },
-            ],
+                'quantity': 1,
+            }],
             mode='payment',
-            success_url="https://enlighten-institute-deployment.vercel.app/success",  # Your success URL
+            success_url="https://enlighten-institute-deployment.vercel.app/success",
             cancel_url="https://enlighten-institute-deployment.vercel.app/cancel",
-            metadata={
-                "course_id": course_id,
-                "student_id": request.user.id,
-            },
+            metadata={"course_id": course_id, "student_id": request.user.id},
         )
         return Response({'id': checkout_session.id})
 
+    except StripeError as e:
+        # Logs Stripe errors specifically
+        logger.error(f"Stripe error: {e}")
+        return Response({"error": "Payment processing error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as e:
+        # Logs any other general error
         logger.exception("An error occurred while creating the checkout session")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
     
 @csrf_exempt
 @api_view(['POST'])
