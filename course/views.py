@@ -237,8 +237,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
     
 class TopRatedCoursesView(APIView):
     def get(self, request):
-        # Fetch top 3 courses ordered by average rating
-        top_courses = Course.objects.annotate(average_rating=Avg('reviews__rating')).order_by('-average_rating')[:3]
+        # Fetch top 3 courses with an average rating, excluding courses with no reviews
+        top_courses = (
+            Course.objects
+            .annotate(average_rating=Avg('reviews__rating'))
+            .filter(average_rating__isnull=False)  # Exclude courses without reviews
+            .order_by('-average_rating')[:3]
+        )
 
         serializer = CourseListSerializer(top_courses, many=True)
         return Response(serializer.data)
